@@ -1,11 +1,11 @@
 #install.packages('rattle')
 #install.packages('rpart.plot')
 #install.packages('RColorBrewer')
-#library(rattle)
-#library(rpart.plot)
-#library(RColorBrewer)
+library(rattle)
+library(rpart.plot)
+library(RColorBrewer)
 
-#setwd("C:\\Users\\Rafik\\Downloads\\Data_project")
+setwd("C:\\Users\\Rafik\\Downloads\\Data_project")
 
 train <- read.csv("train.csv")
 test <- read.csv("test.csv")
@@ -17,7 +17,7 @@ featureEngineering <- function(df) {
   
   # Save the current system timezone so weekdays returns English weekdays
   curr_locale <- Sys.getlocale("LC_TIME")
-  Sys.setlocale("LC_TIME","en_US.UTF-8")
+  Sys.setlocale("LC_TIME","English")
   
   # Factorize season, holiday, workingday and weather for usage in machine learning algorithms
   names <- c("season", "holiday", "workingday", "weather")
@@ -44,15 +44,29 @@ featureEngineering <- function(df) {
   return(df)
 }
 
-#train <- featureEngineer(train)
+trainFE <- featureEngineer(train)
 #test <- featureEngineer
 
 
 
+#testprettrain <- subset(train, select = -c(datetime, registered, casual)) # Exclude columns that are not predictors
 
- fit <- rpart(casual ~ humidity + season + holiday + workingday+ weather + temp + windspeed + atemp, data=train, method="class")
+#fit <- rpart(count ~ ., data=train, method="class", control=rpart.control(minsplit = 20, minbucket = round(minsplit/3), 
+#cp = 0.01, maxcompete = 4, maxsurrogate = 5, usesurrogate = 2, xval = 10, surrogatestyle = 0, maxdepth = 30, ... = ))
+#new.fit <- prp(fit,snip=TRUE)$obj
 
-fancyRpartPlot(fit)
 
-Prection <- predict(fit, test, type = "class")
+ 
+ 
 
+#fancyRpartPlot(fit)
+
+#Prediction <- predict(fit, test, type = "class")
+
+formula_cas <- count ~ season + holiday + workingday + weather + temp + atemp + humidity + windspeed 
+
+model_count <- rpart(formula_cas, data =trainFE)
+
+#pred_model <- round(predict(model_count, newdata =train.test)^2 + predict(model_count, newdata = train.test)^2)
+
+# RMSLE(train.test, pred_model)
