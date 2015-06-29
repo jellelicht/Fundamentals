@@ -1,9 +1,5 @@
+library(randomForest)
 setwd("/home/jelle/Projects/Fundamentals/R_data_bike/")
-
-train <- read.csv("train.csv")
-test <- read.csv("test.csv")
-
-# pairs(train)
 
 featureEngineering <- function(df) {
   
@@ -36,7 +32,55 @@ featureEngineering <- function(df) {
   return(df)
 }
 
-#train <- featureEngineer(train)
-#test <- featureEngineer
+generateForest <- function(df){
+  # Set seed to ensure consistent randomTree generation
+  set.seed(1234)
+  
+  myNtree = 50 # Number of trees in forest
+  myMtry = 3 # Number of attributes per tree
+  myImportance = TRUE # Let the randomForest library determine which attributes are important
+
+  testDf <- subset(df, select = -c(datetime, registered, casual)) # Exclude columns that are not predictors
+  testFit <- randomForest(count ~., data=testDf, ntree=myNtree, mtry=myMtry, importance=myImportance) 
+  return(testFit)
+}
+
+savePredictions <- function(model, testData, fileName){
+  # Predict outcomes of testData using the model
+  testData$count <- predict(model, testData)
+  
+  # Round down to nearest integer
+  testData$count <- round(testData$count, 0)
+  
+  # Prepare columns for submission
+  submission <- subset(testData, select=c(datetime, count))
+  
+  # Write submission data to csv file
+  write.csv(submission, file=fileName, row.names=FALSE)
+}
+
+main <- function(modelGenerator, modelName){
+  # Start by reading a fresh copy of the data
+  train <- read.csv("train.csv")
+  test <- read.csv("test.csv")
+  
+  # Factorise data in dataframe
+  trainFE <- featureEngineering(train) 
+  testFE <- featureEngineering(test)
+  
+  # Generate the model
+  myModel <- modelGenerator(trainFE) # this line changes for different models
+  # Use model 
+  savePredictions(myModel, testFE, paste(modelName, "Predictions.csv"))
+}
+
+
+
+# For DecisionTree:
+
+# For Bayesian:
+
+# For RandomTree:
+
 
 
