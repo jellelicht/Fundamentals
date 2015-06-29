@@ -1,4 +1,7 @@
+#installed.packages(randomForest)
+#installed.packages(e1071)
 library(randomForest)
+library(e1071)
 setwd("/home/jelle/Projects/Fundamentals/R_data_bike/")
 
 featureEngineering <- function(df) {
@@ -32,18 +35,6 @@ featureEngineering <- function(df) {
   return(df)
 }
 
-generateForest <- function(df){
-  # Set seed to ensure consistent randomTree generation
-  set.seed(1234)
-  
-  myNtree = 50 # Number of trees in forest
-  myMtry = 3 # Number of attributes per tree
-  myImportance = TRUE # Let the randomForest library determine which attributes are important
-
-  testDf <- subset(df, select = -c(datetime, registered, casual)) # Exclude columns that are not predictors
-  testFit <- randomForest(count ~., data=testDf, ntree=myNtree, mtry=myMtry, importance=myImportance) 
-  return(testFit)
-}
 
 savePredictions <- function(model, testData, fileName){
   # Predict outcomes of testData using the model
@@ -54,6 +45,9 @@ savePredictions <- function(model, testData, fileName){
   
   # Prepare columns for submission
   submission <- subset(testData, select=c(datetime, count))
+  
+  # Remove negative numbers: (HAXXORZ)
+  submission[,2] <- pmax(submission[,2], 0)
   
   # Write submission data to csv file
   write.csv(submission, file=fileName, row.names=FALSE)
@@ -74,13 +68,41 @@ main <- function(modelGenerator, modelName){
   savePredictions(myModel, testFE, paste(modelName, "Predictions.csv"))
 }
 
+generateLinModel <- function(df){
+  # A Linear Regression model aims to model the count as a linear combination of the other factors
+  testDf <- subset(df, select = -c(datetime, registered, casual)) # Exclude columns that are not predictors  
+  testFit <- lm(count~hour + year + temp + humidity, testDf)
+  return(testFit)
+}
+
+generateSVMModel <- function(df){
+  testDf <- subset(df, select = -c(datetime, registered, casual)) # Exclude columns that are not predictors  
+  testFit <- svm(count~., testDf)
+  #testFit[testFit<0] <- as.integer(0)
+  return(testFit)
+}
+
+generateForest <- function(df){
+  # A Random Forest based model uses decisionTrees to determine which factors influence the count most
+  # Set seed to ensure consistent randomTree generation
+  set.seed(1234)
+  
+  myNtree = 50 # Number of trees in forest
+  myMtry = 42 # Number of attributes per tree
+  myImportance = TRUE # Let the randomForest library determine which attributes are important
+  testDf <- subset(df, select = -c(datetime, registered, casual)) # Exclude columns that are not predictors
+  
+  testFit <- randomForest(count ~., data=testDf, ntree=myNtree, mtry=myMtry, importance=myImportance) 
+  return(testFit)
+}
 
 
-# For DecisionTree:
-
-# For Bayesian:
-
-# For RandomTree:
+# For RandomTree: !!! VERY VERY SLOW
+# main(generateForest, "Forest")
+# For LM:
+# main(generateLinModel, "Linear")
+# For SVM:
+# main(generateSVMModel, "SVM")
 
 
 
