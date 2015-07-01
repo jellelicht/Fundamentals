@@ -1,0 +1,31 @@
+## Support vector machines (SVM) explanation:
+
+Like in case of a lot of other machine learning algorithms, SVM take data to start with that is already 
+in the training set, and moreover tries to predict a set of unclassified data which is the test set (so 
+without the classifier 'count'. 
+
+The data has different features, now you want to find the line that splits the data between multiple classified
+groups of data as good as possible. This will be done in such a way that the distances from the closest point 
+in each of the groups will be farthest away. That lines is the classifier. Then depending on where the testing
+data lands on either side of the line, this is what class, the new data can be classified as. quadratic pro-
+gramming can be used to determine the line/plane/hyperplane separatoin of datapoints, this can be considered to
+be an optimization problem as well.
+
+However the magic seperation in SVM is also the big drawback. This mainly because the complex data tranfor-
+mations and resulting boundary plane are very difficult to interpret therefore often called a black-box. You go
+in without exactly knowing what's going on and then you go as an output.
+
+So basically SVM is a supervised learning algorithm which can be used for regression problems. It uses the
+kernel trick technique to transfor the given data, and based on this transformations it is able to find an 
+optimal boundary between possible outputs that are defined by the 'count'variable in this sense. 
+
+The kernel trick technique tranforms the data. Different features which are likely to make a freat classifier
+and out goes comes data which is not recognizable anymore. It is comparable like extracting a strand of DNA 
+from it.
+
+If you compare SVM, Logidtic and Decision tree on a set of datapoints  which are categorized in two categories,
+you will see that logistic is just one straight separatinf line. The Decion tree is more spearation in ranges
+or area and SVM is a smooth and more elegant surround of datapoints from the others.
+
+
+
